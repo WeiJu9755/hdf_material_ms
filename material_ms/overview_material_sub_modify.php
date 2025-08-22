@@ -37,6 +37,7 @@ function processform($aFormValues){
 	$est_return_start_date	= trim($aFormValues['est_return_start_date']);
 	$return_start_date		= trim($aFormValues['return_start_date']);
 	$return_end_date		= trim($aFormValues['return_end_date']);
+	$case_id				= trim($aFormValues['case_id']);
 	
 	/*
 	if (trim($aFormValues['engineering_overview']) == "")	{
@@ -49,6 +50,8 @@ function processform($aFormValues){
 	//存入實體資料庫中
 	$mDB = "";
 	$mDB = new MywebDB();
+	$mDB2 = "";
+	$mDB2 = new MywebDB();
 
 	$Qry="UPDATE overview_material_sub set
 			 fees_item			= '$fees_item'
@@ -66,7 +69,14 @@ function processform($aFormValues){
 			where auto_seq = '$auto_seq'";
 			
 	$mDB->query($Qry);
+
+	// 更新主檔
+    $Qry3="UPDATE CaseManagement 
+           SET last_modify8 = NOW(), makeby8 = '$memberID' 
+           WHERE case_id = '$case_id'";
+    $mDB2->query($Qry3);
 	$mDB->remove();
+	$mDB2->remove();
 
 	$objResponse->script("setSave();");
 	$objResponse->script("parent.overview_material_sub_Draw();");
@@ -477,6 +487,7 @@ $style_css
 						<input type="hidden" name="site_db" value="$site_db" />
 						<input type="hidden" name="memberID" value="$memberID" />
 						<input type="hidden" name="auto_seq" value="$auto_seq" />
+						<input type="hidden" name="case_id" value="$case_id" />
 						<input type="hidden" id="feed_type_list" name="feed_type_list" value="$feed_type_list" />
 						<input type="hidden" id="return_type_list" name="return_type_list" value="$return_type_list" />
 					</div>

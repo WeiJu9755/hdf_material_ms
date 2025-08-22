@@ -88,9 +88,12 @@ $xajax->registerFunction("DeleteRow");
 function DeleteRow($auto_seq,$case_id,$seq){
 
 	$objResponse = new xajaxResponse();
+	$memberID = $_SESSION['memberID']; // 從 session 取
 	
 	$mDB = "";
 	$mDB = new MywebDB();
+	$mDB2 = "";
+	$mDB2 = new MywebDB();
 
 	//刪除物資時程資料
 	$Qry="delete from overview_material_sub where case_id ='$case_id' and seq = '$seq' and seq2 = '$auto_seq'";
@@ -99,8 +102,15 @@ function DeleteRow($auto_seq,$case_id,$seq){
 	//刪除主資料
 	$Qry="delete from overview_material_building where auto_seq = '$auto_seq'";
 	$mDB->query($Qry);
+
+	// 更新主檔
+    $Qry2="UPDATE CaseManagement 
+           SET last_modify8 = NOW(), makeby8 = '$memberID' 
+           WHERE case_id = '$case_id'";
+    $mDB2->query($Qry2);
 	
 	$mDB->remove();
+	$mDB2->remove();
 	
     $objResponse->script("oTable = $('#overview_material_building_table').dataTable();oTable.fnDraw(false)");
 	$objResponse->script("autoclose('提示', '資料已刪除！', 1500);");

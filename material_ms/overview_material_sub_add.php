@@ -47,13 +47,18 @@ function processform($aFormValues){
 		$case_id			= trim($aFormValues['case_id']);
 		$seq				= trim($aFormValues['seq']);
 		$seq2				= trim($aFormValues['seq2']);
+		$memberID       	= $_SESSION['memberID'];
 		
 		//存入實體資料庫中
 		$mDB = "";
 		$mDB = new MywebDB();
+		$mDB2 = "";
+		$mDB2 = new MywebDB();
 	  
 		$Qry="insert into overview_material_sub (case_id,seq,seq2,floor,makeby,last_modify) values ('$case_id','$seq','$seq2','$floor_list','$memberID',now())";
+		$Qry2 = "UPDATE CaseManagement SET last_modify8 = NOW(), makeby8 = '$memberID' WHERE case_id = '$case_id'";
 		$mDB->query($Qry);
+		$mDB2->query($Qry2);
 		//再取出auto_seq
 		$Qry="select auto_seq from overview_material_sub where case_id = '$case_id' and seq = '$seq' and seq2 = '$seq2' order by auto_seq desc limit 0,1";
 		$mDB->query($Qry);
@@ -62,8 +67,9 @@ function processform($aFormValues){
 			$row=$mDB->fetchRow(2);
 			$auto_seq = $row['auto_seq'];
 		}
-
         $mDB->remove();
+        $mDB2->remove();	
+
 
 		if (!empty($auto_seq)) {
 			$objResponse->script("myDraw();");
