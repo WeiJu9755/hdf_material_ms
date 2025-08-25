@@ -26,16 +26,25 @@ $xajax = new xajax();
 
 
 $xajax->registerFunction("DeleteRow");
-function DeleteRow($auto_seq){
+function DeleteRow($auto_seq,$case_id,$memberID){
 
 	$objResponse = new xajaxResponse();
 	
 	$mDB = "";
 	$mDB = new MywebDB();
+	$mDB2 = "";
+	$mDB2 = new MywebDB();
 
 	//刪除主資料
 	$Qry="delete from overview_material_sub where auto_seq = '$auto_seq'";
 	$mDB->query($Qry);
+
+	// 更新主檔
+    $Qry2="UPDATE CaseManagement 
+           SET last_modify8 = NOW(), makeby8 = '$memberID' 
+           WHERE case_id = '$case_id'";
+    $mDB2->query($Qry2);
+	$mDB2->remove();
 	
 	$mDB->remove();
 	
@@ -283,7 +292,7 @@ $style_css
 
 				//處理
 				var url1 = "openfancybox_edit('/index.php?ch=overview_material_sub_modify&auto_seq="+aData[0]+"&fm=$fm',800,'96%','');";
-				var mdel = "myDel("+aData[0]+");";
+				var mdel = "myDel(" + aData[0] + ", '$case_id', '$memberID');";
 
 				var show_btn = '';
 
@@ -306,7 +315,7 @@ $style_css
 		
 	} );
 
-var myDel = function(auto_seq) {
+var myDel = function(auto_seq,case_id,memberID) {
 
 	Swal.fire({
 	title: "您確定要刪除此筆資料嗎?",
@@ -319,7 +328,7 @@ var myDel = function(auto_seq) {
 	confirmButtonText: "刪除"
 	}).then((result) => {
 		if (result.isConfirmed) {
-			xajax_DeleteRow(auto_seq);
+			xajax_DeleteRow(auto_seq, case_id, memberID);
 		}
 	});
 
