@@ -463,10 +463,10 @@ $style_css
 					<div class="container-fluid">
 						<div class="row">
 							<div class="col-lg-12 col-sm-12 col-md-12">
-								<div class="field_div1">退料開始日期:</div> 
+								<div class="field_div1">退料結束日期:</div> 
 								<div class="field_div2">
 									<div class="input-group" id="return_end_date" style="width:100%;max-width:250px;">
-										<input type="text" class="form-control" name="return_end_date" placeholder="請輸入退料開始日期" aria-describedby="return_end_date" value="$return_end_date">
+										<input type="text" class="form-control" name="return_end_date" placeholder="請輸入退料結束日期" aria-describedby="return_end_date" value="$return_end_date">
 										<button class="btn btn-outline-secondary input-group-append input-group-addon" type="button" data-target="#return_end_date" data-toggle="datetimepicker"><i class="bi bi-calendar"></i></button>
 									</div>
 									<script type="text/javascript">
