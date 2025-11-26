@@ -43,6 +43,7 @@ function SaveValue($aFormValues){
 	
 		//進行存檔動作
 		$site_db				= trim($aFormValues['site_db']);
+		$building				= trim($aFormValues['building']);
 		$memberID				= trim($aFormValues['memberID']);
 		$auto_seq				= trim($aFormValues['auto_seq']);
 		$eng_description		= trim($aFormValues['eng_description']);
@@ -58,6 +59,7 @@ function SaveValue($aFormValues){
 
 		$Qry="UPDATE overview_material_building set
 				eng_description 	= '$eng_description'
+				,building			= '$building'
 				,scheduled_completion_date = '$scheduled_completion_date'
 				,builder_id			= '$builder_id'
 				,makeby				= '$memberID'
@@ -120,6 +122,18 @@ if ($mDB->rowCount() > 0) {
 		$ch_builder_name = $row['subcontractor_name'];
 		$select_builder .= "<option value=\"$ch_builder_id\" ".mySelect($ch_builder_id,$builder_id).">$ch_builder_id $ch_builder_name</option>";
 	}
+}
+
+//載入棟別
+$Qry="select caption from items where pro_id = 'building' order by pro_id,orderby";
+$mDB->query($Qry);
+$select_building = "<option></option>";
+
+if ($mDB->rowCount() > 0) {
+    while ($row=$mDB->fetchRow(2)) {
+        $ch_caption = $row['caption'];
+        $select_building .= "<option value=\"$ch_caption\" ".mySelect($ch_caption, $building).">$ch_caption</option>";
+    }
 }
 
 $mDB->remove();
@@ -235,9 +249,14 @@ $style_css
 						<div class="row">
 							<div class="col-lg-12 col-sm-12 col-md-12">
 								<div class="field_div1">棟別:</div> 
-								<div class="inline mt-2" style="width:100%;max-width:380px;">
+								<div class="inline mt-2">
+									<select id="building" name="building" placeholder="請選擇" style="width:100%;max-width:150px;">
+										$select_building
+									</select>
+								</div>  
+								<!--<div class="inline mt-2" style="width:100%;max-width:380px;">
 									<div class="inline size14 weight blue02 mt-2">$building</div>
-								</div> 
+								</div> -->
 							</div> 
 						</div>
 					</div>
