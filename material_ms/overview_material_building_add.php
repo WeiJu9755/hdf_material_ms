@@ -49,7 +49,7 @@ function processform($aFormValues){
 		$Qry="insert into overview_material_building (case_id,seq,builder_id,building,makeby,last_modify) values ('$case_id','$seq','$builder_id','$building','$memberID',now())";
 		$mDB->query($Qry);
 
-		$Qry2 = "UPDATE CaseManagement SET last_modify8 = NOW(), makeby8 = '$memberID' WHERE case_id = '$case_id'";
+		$Qry2 = "UPDATE CaseManagement SET last_modify8 = NOW(), makeby8 = '$memberID', update_count8 = update_count8 + 1 WHERE case_id = '$case_id'";
 		$mDB2->query($Qry2);
 		//再取出auto_seq
 		$Qry="select auto_seq from overview_material_building where case_id = '$case_id' and seq = '$seq' order by auto_seq desc limit 0,1";

@@ -56,7 +56,7 @@ function processform($aFormValues){
 		$mDB2 = new MywebDB();
 	  
 		$Qry="insert into overview_material_sub (case_id,seq,seq2,floor,makeby,last_modify) values ('$case_id','$seq','$seq2','$floor_list','$memberID',now())";
-		$Qry2 = "UPDATE CaseManagement SET last_modify8 = NOW(), makeby8 = '$memberID' WHERE case_id = '$case_id'";
+		$Qry2 = "UPDATE CaseManagement SET last_modify8 = NOW(), makeby8 = '$memberID', update_count8 = update_count8 + 1 WHERE case_id = '$case_id'";
 		$mDB->query($Qry);
 		$mDB2->query($Qry2);
 		//再取出auto_seq
