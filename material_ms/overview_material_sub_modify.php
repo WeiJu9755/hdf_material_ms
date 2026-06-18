@@ -27,6 +27,7 @@ function processform($aFormValues){
 	
 	$memberID				= trim($aFormValues['memberID']);
 	$auto_seq				= trim($aFormValues['auto_seq']);
+	$floor_list			= trim($aFormValues['floor_list']);
 	$fees_item				= trim($aFormValues['fees_item']);
 	$feed_type_list			= trim($aFormValues['feed_type_list']);
 	$est_feed_start_date	= trim($aFormValues['est_feed_start_date']);
@@ -47,6 +48,12 @@ function processform($aFormValues){
 	}
 	*/
 
+	if (trim($aFormValues['floor_list']) == "")	{
+		$objResponse->script("jAlert('警示', '請選擇樓層進料', 'red', '', 2000);");
+		return $objResponse;
+		exit;
+	}
+
 	//存入實體資料庫中
 	$mDB = "";
 	$mDB = new MywebDB();
@@ -54,7 +61,8 @@ function processform($aFormValues){
 	$mDB2 = new MywebDB();
 
 	$Qry="UPDATE overview_material_sub set
-			 fees_item			= '$fees_item'
+			 floor				= '$floor_list'
+			,fees_item			= '$fees_item'
 			,feed_type			= '$feed_type_list'
 			,est_feed_start_date	= '$est_feed_start_date'
 			,feed_start_date	= '$feed_start_date'
@@ -102,6 +110,7 @@ $fm = $_GET['fm'];
 
 $mess_title = $title;
 
+$floor_list = array();
 $feed_type_list = array();
 $return_type_list = array();
 
@@ -128,6 +137,7 @@ if ($total > 0) {
 	$return_start_date = $row['return_start_date'];
 	$return_end_date = $row['return_end_date'];
 
+	$floor_list = explode(',', $floor);
 	$feed_type_list = explode(',', $feed_type);
 	$return_type_list = explode(',', $return_type);
 
@@ -163,6 +173,22 @@ if ($mDB->rowCount() > 0) {
 
 $series_feed_type_list = json_encode($feed_type_list);
 $series_return_type_list = json_encode($return_type_list);
+
+$select_floor_list = array();
+
+$Qry="select * from items where pro_id = 'floor' order by orderby";
+$mDB->query($Qry);
+if ($mDB->rowCount() > 0) {
+    //已找到符合資料
+	while ($row=$mDB->fetchRow(2)) {
+		$caption = $row['caption'];
+		$orderby = $row['orderby'];
+
+		$select_floor_list[] = $caption;
+
+	}
+
+}
 
 $select_list = array();
 
@@ -202,6 +228,8 @@ $mDB->remove();
 
 $series_select_list = json_encode($select_list);
 $series_select_return_type_list = json_encode($select_return_type_list);
+$series_select_floor_list = json_encode($select_floor_list);
+$series_floor_list = json_encode($floor_list);
 
 
 
@@ -301,7 +329,7 @@ $style_css
 							<div class="col-lg-12 col-sm-12 col-md-12">
 								<div class="field_div1">樓層進料:</div>
 								<div class="field_div2">
-									<div style="padding:8px 0;font-size:18px;color:blue;text-align:left;font-weight:700;">$floor</div>
+									<select class="form-select form-select-lg select_floor" multiple="multiple" id="floor" name="floor" data-placeholder="請選擇樓層進料" data-width="400px" onchange="setEdit();"></select>
 								</div> 
 							</div> 
 						</div>
@@ -488,6 +516,7 @@ $style_css
 						<input type="hidden" name="memberID" value="$memberID" />
 						<input type="hidden" name="auto_seq" value="$auto_seq" />
 						<input type="hidden" name="case_id" value="$case_id" />
+						<input type="hidden" id="floor_list" name="floor_list" value="$floor" />
 						<input type="hidden" id="feed_type_list" name="feed_type_list" value="$feed_type_list" />
 						<input type="hidden" id="return_type_list" name="return_type_list" value="$return_type_list" />
 					</div>
@@ -500,6 +529,10 @@ $style_css
 <script>
 
 function CheckValue(thisform) {
+
+	// 獲取 select 元素
+	var selectedFloor = $('#floor').val();
+	$('#floor_list').val(selectedFloor);
 
 	// 獲取 select 元素
 	var selectedValue1 = $('#feed_type').val();
@@ -532,13 +565,34 @@ function setSave() {
 </script>
 <script>
 
+	var series_select_floor_list = JSON.parse('$series_select_floor_list');
+
+	$( '#floor' ).select2( {
+		theme: "bootstrap-5",
+		data: series_select_floor_list,
+		tags: true,
+		maximumSelectionLength: 100,
+		tokenSeparators: [',', ' '],
+		width: $( '#floor' ).data( 'width' ),
+		placeholder: $( '#floor' ).data( 'placeholder' ),
+		closeOnSelect: false,
+		selectionCssClass: 'select2--large',
+		dropdownCssClass: 'select2--large',
+	} );
+
+	var series_floor_list = JSON.parse('$series_floor_list');
+	$("#floor").val(series_floor_list).select2();
+
+</script>
+<script>
+
 	var series_select_list = JSON.parse('$series_select_list');
 
-	$( '.select2' ).select2( {
+	$( '#feed_type' ).select2( {
 		theme: "bootstrap-5",
 		data: series_select_list,
-		width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
-		placeholder: $( this ).data( 'placeholder' ),
+		width: $( '#feed_type' ).data( 'width' ),
+		placeholder: $( '#feed_type' ).data( 'placeholder' ),
 		closeOnSelect: false,
 		selectionCssClass: 'select2--large',
     	dropdownCssClass: 'select2--large',
@@ -552,11 +606,11 @@ function setSave() {
 
 	var series_select_return_type_list = JSON.parse('$series_select_return_type_list');
 
-	$( '.select3' ).select2( {
+	$( '#return_type' ).select2( {
 		theme: "bootstrap-5",
 		data: series_select_return_type_list,
-		width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
-		placeholder: $( this ).data( 'placeholder' ),
+		width: $( '#return_type' ).data( 'width' ),
+		placeholder: $( '#return_type' ).data( 'placeholder' ),
 		closeOnSelect: false,
 		selectionCssClass: 'select2--large',
     	dropdownCssClass: 'select2--large',
