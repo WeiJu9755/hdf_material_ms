@@ -105,6 +105,7 @@ $total = $mDB->rowCount();
 if ($total > 0) {
     //已找到符合資料
 	$row=$mDB->fetchRow(2);
+	$case_id = $row['case_id'];
 	$building = $row['building'];
 	$eng_description = $row['eng_description'];
 	$scheduled_completion_date = $row['scheduled_completion_date'];
@@ -229,6 +230,21 @@ EOT;
 
 
 
+$case_context_id = $case_id ?? '';
+$case_context_row = $case_context_id !== ''
+    ? getkeyvalue2($site_db . '_info', 'CaseManagement', "case_id = '$case_context_id'", 'construction_id')
+    : array();
+$display_case_id = htmlspecialchars(trim((string)$case_context_id) ?: '未提供', ENT_QUOTES, 'UTF-8');
+$display_construction = htmlspecialchars(trim((string)($case_context_row['construction_id'] ?? '')) ?: '未提供', ENT_QUOTES, 'UTF-8');
+$context_building = $building ?? '';
+$context_floor = '';
+$display_building = trim((string)$context_building) !== ''
+    ? '<span class="me-3"><strong>棟別：</strong>' . htmlspecialchars((string)$context_building, ENT_QUOTES, 'UTF-8') . '</span>'
+    : '';
+$display_floor = trim((string)$context_floor) !== ''
+    ? '<span class="me-3"><strong>樓層：</strong>' . htmlspecialchars((string)$context_floor, ENT_QUOTES, 'UTF-8') . '</span>'
+    : '';
+
 $show_center=<<<EOT
 $style_css
 <div class="card card_full">
@@ -241,6 +257,12 @@ $style_css
 		</div>
 	</div>
 	<div id="full" class="card-body data-overlayscrollbars-initialize">
+		<div class="alert alert-info mb-3" role="status" style="font-size:20px;line-height:1.8;">
+			<span class="me-3"><strong>案件編號：</strong>$display_case_id</span>
+			<span class="me-3"><strong>工程名稱：</strong>$display_construction</span>
+			$display_building
+			$display_floor
+		</div>
 		<div id="info_container">
 			<form method="post" id="modifyForm" name="modifyForm" enctype="multipart/form-data" action="javascript:void(null);">
 			<div class="w-100 mb-5">
